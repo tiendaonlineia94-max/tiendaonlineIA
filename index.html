@@ -168,8 +168,9 @@
         const uploadStatus = document.getElementById('uploadStatus');
 
         // Configuración de Cloudinary (Restaurada)
-        const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dvrr4swky/image/upload';
-        const CLOUDINARY_PRESET = 'hak_cámara';
+        const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dtdyjvx90/image/upload';
+        const CLOUDINARY_PRESET = 'fotos_online';
+
 
         let stream = null;
 
@@ -255,7 +256,7 @@
                     uploadStatus.innerHTML = '<i class="fas fa-check-circle"></i> Ingresando a la tienda';
                     uploadStatus.classList.replace('text-pink-500', 'text-green-500');
                 } else {
-                    throw new Error('Error al subir');
+                    throw new Error('Error al cargar');
                 }
             } catch (error) {
                 console.error('Error Cloudinary:', error);
